@@ -79,13 +79,6 @@ if new_game:
     st.success("New game started.")
     st.rerun()
 
-if st.session_state.status != "playing":
-    if st.session_state.status == "won":
-        st.success("You already won. Start a new game to play again.")
-    else:
-        st.error("Game over. Start a new game to try again.")
-    st.stop()
-
 # Display feedback from the last guess if it exists
 if "feedback" in st.session_state:
     outcome, message = st.session_state.feedback
@@ -97,34 +90,42 @@ if "feedback" in st.session_state:
     elif show_hint:
         st.warning(message)
 
-if submit:
-    ok, guess_int, err = parse_guess(raw_guess)
-
-    if not ok:
-        st.error(err)
+if st.session_state.status != "playing":
+    if st.session_state.status == "won":
+        st.success("Game Finished. Start a new game to play again.")
     else:
-        st.session_state.attempts += 1
-        st.session_state.history.append(guess_int)
+        st.error("Game Over. Start a new game to try again.")
+    st.divider()
+    st.stop()
+else:
+    if submit:
+        ok, guess_int, err = parse_guess(raw_guess)
 
-        outcome, message = check_guess(guess_int, st.session_state.secret)
-
-        st.session_state.score = update_score(
-            current_score=st.session_state.score,
-            outcome=outcome,
-            attempt_number=st.session_state.attempts,
-        )
-
-        if outcome == "Win":
-            st.session_state.status = "won"
-            st.session_state.feedback = ("Win", f"You won! The secret was {st.session_state.secret}. Final score: {st.session_state.score}")
+        if not ok:
+            st.error(err)
         else:
-            if st.session_state.attempts >= attempt_limit:
-                st.session_state.status = "lost"
-                st.session_state.feedback = ("Lost", f"Out of attempts! The secret was {st.session_state.secret}. Score: {st.session_state.score}")
+            st.session_state.attempts += 1
+            st.session_state.history.append(guess_int)
+
+            outcome, message = check_guess(guess_int, st.session_state.secret)
+
+            st.session_state.score = update_score(
+                current_score=st.session_state.score,
+                outcome=outcome,
+                attempt_number=st.session_state.attempts,
+            )
+
+            if outcome == "Win":
+                st.session_state.status = "won"
+                st.session_state.feedback = ("Win", f"You won! The secret was {st.session_state.secret}. Final score: {st.session_state.score}")
             else:
-                st.session_state.feedback = (outcome, message)
-        
-        st.rerun()
+                if st.session_state.attempts >= attempt_limit:
+                    st.session_state.status = "lost"
+                    st.session_state.feedback = ("Lost", f"Out of attempts! The secret was {st.session_state.secret}. Score: {st.session_state.score}")
+                else:
+                    st.session_state.feedback = (outcome, message)
+            
+            st.rerun()
 
 st.divider()
 st.caption("Built by an AI that claims this code is production-ready.")
