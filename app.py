@@ -74,6 +74,8 @@ if new_game:
     st.session_state.secret = random.randint(low, high)
     st.session_state.status = "playing"
     st.session_state.history = []
+    if "feedback" in st.session_state:
+        del st.session_state.feedback
     st.success("New game started.")
     st.rerun()
 
@@ -84,21 +86,27 @@ if st.session_state.status != "playing":
         st.error("Game over. Start a new game to try again.")
     st.stop()
 
-if submit:
-    st.session_state.attempts += 1
+# Display feedback from the last guess if it exists
+if "feedback" in st.session_state:
+    outcome, message = st.session_state.feedback
+    if outcome == "Win":
+        st.balloons()
+        st.success(message)
+    elif "Lost" in outcome:
+        st.error(message)
+    elif show_hint:
+        st.warning(message)
 
+if submit:
     ok, guess_int, err = parse_guess(raw_guess)
 
     if not ok:
-        st.session_state.history.append(raw_guess)
         st.error(err)
     else:
+        st.session_state.attempts += 1
         st.session_state.history.append(guess_int)
 
         outcome, message = check_guess(guess_int, st.session_state.secret)
-
-        if show_hint:
-            st.warning(message)
 
         st.session_state.score = update_score(
             current_score=st.session_state.score,
@@ -107,20 +115,16 @@ if submit:
         )
 
         if outcome == "Win":
-            st.balloons()
             st.session_state.status = "won"
-            st.success(
-                f"You won! The secret was {st.session_state.secret}. "
-                f"Final score: {st.session_state.score}"
-            )
+            st.session_state.feedback = ("Win", f"You won! The secret was {st.session_state.secret}. Final score: {st.session_state.score}")
         else:
             if st.session_state.attempts >= attempt_limit:
                 st.session_state.status = "lost"
-                st.error(
-                    f"Out of attempts! "
-                    f"The secret was {st.session_state.secret}. "
-                    f"Score: {st.session_state.score}"
-                )
+                st.session_state.feedback = ("Lost", f"Out of attempts! The secret was {st.session_state.secret}. Score: {st.session_state.score}")
+            else:
+                st.session_state.feedback = (outcome, message)
+        
+        st.rerun()
 
 st.divider()
 st.caption("Built by an AI that claims this code is production-ready.")
