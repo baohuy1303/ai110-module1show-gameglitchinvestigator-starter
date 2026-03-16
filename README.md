@@ -25,13 +25,18 @@ It wrote the code, ran away, and now the game is unplayable.
 
 ## 📝 Document Your Experience
 
-- [ ] Describe the game's purpose.
-- [ ] Detail which bugs you found.
-- [ ] Explain what fixes you applied.
+- [x] **Describe the game's purpose.**
+  This is a Streamlit-based number guessing game where players seek a secret number within dynamic ranges (e.g., 1-200 for Hard) using limited attempts and logic-driven hints.
+- [x] **Detail which bugs you found.**
+  The game featured reversed hints, incorrect difficulty scaling, a state lag requiring double-clicks to refresh progress, and scores that didn't reset between sessions or could drop below zero.
+- [x] **Explain what fixes you applied.**
+  I refactored the core logic into a modular utility file, corrected all mathematical and string errors, and integrated `st.rerun()` with session-state feedback to ensure an instant, bug-free user experience.
 
 ## 📸 Demo
 
-- [ ] [Insert a screenshot of your fixed, winning game here]
+- [x] [Insert a screenshot of your fixed, winning game here]
+
+![Screenshot of fixed game](screenshot.png)
 
 ## 🚀 Stretch Features
 
