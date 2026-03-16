@@ -60,6 +60,7 @@ def update_score(current_score: int, outcome: str, attempt_number: int):
 
     # Don't add points for wrong guesses
     if outcome == "Too High" or outcome == "Too Low":
-        return current_score - 5
+        new_score = current_score - 5
+        return max(0, new_score)
 
     return current_score
